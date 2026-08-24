@@ -371,7 +371,7 @@ function initModals() {
 
   const auditForm = document.getElementById('audit-form');
   if (auditForm) {
-    auditForm.addEventListener('submit', (e) => {
+    auditForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const website = document.getElementById('audit-website').value;
       const email = document.getElementById('audit-email').value;
@@ -381,15 +381,38 @@ function initModals() {
         return;
       }
 
-      showToast(`Opening your email client to send free audit request...`, 'success');
-      
-      const subject = encodeURIComponent(`Free SEO Audit Request for ${website}`);
-      const body = encodeURIComponent(`Hello Sabrina,\n\nI would like to request a free SEO audit for my website.\n\nWebsite URL: ${website}\nContact Email: ${email}\n\nThank you!`);
-      
-      window.location.href = `mailto:sabrinaakterdigital@gmail.com?subject=${subject}&body=${body}`;
-      
+      showToast('Sending your Free Audit request to sabrinaakterdigital@gmail.com...', 'info');
+
+      try {
+        const response = await fetch('https://formsubmit.co/ajax/sabrinaakterdigital@gmail.com', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            _subject: `⚡ Free SEO Audit Request for ${website}`,
+            "Website URL": website,
+            "Client Email": email,
+            "_template": "table"
+          })
+        });
+
+        if (response.ok) {
+          showToast('✅ Audit Request Sent! Sabrina will email your custom SEO audit within 24 hours.', 'success');
+        } else {
+          throw new Error('Direct send failed');
+        }
+      } catch (err) {
+        // Fallback to mailto if network blocks AJAX
+        const subject = encodeURIComponent(`Free SEO Audit Request for ${website}`);
+        const body = encodeURIComponent(`Hello Sabrina,\n\nI would like to request a free SEO audit for my website.\n\nWebsite URL: ${website}\nContact Email: ${email}\n\nThank you!`);
+        window.location.href = `mailto:sabrinaakterdigital@gmail.com?subject=${subject}&body=${body}`;
+        showToast('Opening your email client to send audit request...', 'success');
+      }
+
       auditForm.reset();
-      modal.classList.add('hidden');
+      if (modal) modal.classList.add('hidden');
     });
   }
 }
@@ -399,7 +422,7 @@ function initContactForm() {
   const form = document.getElementById('contact-form');
   if (!form) return;
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('contact-name').value;
     const email = document.getElementById('contact-email').value;
@@ -412,12 +435,39 @@ function initContactForm() {
       return;
     }
 
-    showToast(`Dispatching message to sabrinaakterdigital@gmail.com...`, 'success');
+    showToast('Dispatching inquiry to sabrinaakterdigital@gmail.com...', 'info');
 
-    const subject = encodeURIComponent(`New SEO Client Inquiry from ${name}`);
-    const body = encodeURIComponent(`Hi Sabrina,\n\nName: ${name}\nEmail: ${email}\nWebsite URL: ${website}\nMonthly Budget: ${budget}\n\nProject Requirements & Goals:\n${message}\n\nBest regards,\n${name}`);
+    try {
+      const response = await fetch('https://formsubmit.co/ajax/sabrinaakterdigital@gmail.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          _subject: `📩 New SEO Inquiry from ${name}`,
+          "Client Name": name,
+          "Client Email": email,
+          "Website URL": website,
+          "Monthly Budget": budget,
+          "Project Requirements": message,
+          "_template": "table"
+        })
+      });
 
-    window.location.href = `mailto:sabrinaakterdigital@gmail.com?subject=${subject}&body=${body}`;
+      if (response.ok) {
+        showToast('✅ Message Sent! Sabrina received your inquiry at sabrinaakterdigital@gmail.com.', 'success');
+      } else {
+        throw new Error('Direct send failed');
+      }
+    } catch (err) {
+      // Fallback to mailto
+      const subject = encodeURIComponent(`New SEO Client Inquiry from ${name}`);
+      const body = encodeURIComponent(`Hi Sabrina,\n\nName: ${name}\nEmail: ${email}\nWebsite URL: ${website}\nMonthly Budget: ${budget}\n\nProject Requirements & Goals:\n${message}\n\nBest regards,\n${name}`);
+      window.location.href = `mailto:sabrinaakterdigital@gmail.com?subject=${subject}&body=${body}`;
+      showToast('Opening your email client to send inquiry...', 'success');
+    }
+
     form.reset();
   });
 }
