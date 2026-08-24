@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sabrinaakterseo.github.io/sitemap.xml
